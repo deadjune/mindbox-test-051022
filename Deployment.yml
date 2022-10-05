@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindbox-test-app
+  labels:
+    app: mindbox-test-app
+spec:
+  selector:
+    matchLabels:
+      app: mindbox-test-app
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mindbox-test-app
+    spec:
+      securityContext:
+        runAsUser: 1010 # рандомный UID
+        runAsGroup: 0
+      containers:
+        - name: mindbox-test-app
+          image: registry.mindbox.local/mindbox-test-app
+          readinessProbe: 
+            httpGet:
+              path: /same_path
+              port: mindbox-test-app
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m # "значительно больше" - это во сколько раз? допустим, в 2,5.
+              memory: 128Mi 
+          ports:
+            - containerPort: 8080
+              name: mindbox-test-app
